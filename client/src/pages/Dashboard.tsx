@@ -323,7 +323,6 @@ function SecurityForm() {
 }
 
 function MyComments() {
-  const { user } = useAuth();
   const [comments, setComments] = useState<MyComment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
