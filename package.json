@@ -1,0 +1,17 @@
+{
+  "name": "gyandistro",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GyanDistro — a MERN + TypeScript blogging platform with roles, moderation, AI assistance and built-in monetisation.",
+  "scripts": {
+    "setup": "npm install && npm --prefix server install && npm --prefix client install",
+    "dev": "concurrently -n api,web -c yellow,cyan \"npm --prefix server run dev\" \"npm --prefix client run dev\"",
+    "seed": "npm --prefix server run seed",
+    "build": "npm --prefix server run build && npm --prefix client run build",
+    "start": "npm --prefix server run start",
+    "typecheck": "npm --prefix server run typecheck && npm --prefix client run typecheck"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
