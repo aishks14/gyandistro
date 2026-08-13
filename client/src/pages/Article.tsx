@@ -173,9 +173,6 @@ export default function Article() {
               <button className={`btn btn-sm${liked ? '' : ' btn-ghost'}`} onClick={toggleLike}>
                 {liked ? 'Liked' : 'Like'} · {likeCount}
               </button>
-              <a className="btn btn-ghost btn-sm" href={`/api/posts/${post.slug}/pdf`} download>
-                Download PDF
-              </a>
               {post.tags?.map((t) => (
                 <Link key={t._id} className="chip" to={`/?tag=${t.slug}`}>
                   #{t.name}

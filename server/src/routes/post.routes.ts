@@ -4,7 +4,6 @@ import * as comments from '../controllers/comment.controller';
 import { validate } from '../middleware/validate';
 import { optionalAuth, requireAuth, requireRole } from '../middleware/auth';
 import { writeLimiter } from '../middleware/rateLimit';
-import { pdfLimiter } from '../middleware/rateLimit';
 
 const router = Router();
 
@@ -39,6 +38,5 @@ router.put(
 );
 router.delete('/:id', requireAuth, requireRole('author', 'editor', 'admin'), posts.deletePost);
 router.post('/:id/like', requireAuth, posts.toggleLike);
-router.get('/:slug/pdf', pdfLimiter, posts.downloadPostPdf);
 
 export default router;

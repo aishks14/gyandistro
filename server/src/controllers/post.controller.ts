@@ -294,16 +294,3 @@ export const stats = asyncHandler(async (_req: Request, res: Response) => {
     }
   });
 });
-
-import { renderArticleToPdf } from '../services/pdf.service';
-
-export const downloadPostPdf = asyncHandler(async (req: Request, res: Response) => {
-  const post = await Post.findOne({ slug: req.params.slug, status: 'published' });
-  if (!post) throw ApiError.notFound('That article is not available as a PDF');
-
-  const pdf = await renderArticleToPdf(post.slug);
-
-  res.setHeader('Content-Type', 'application/pdf');
-  res.setHeader('Content-Disposition', `attachment; filename="${post.slug}.pdf"`);
-  res.send(pdf);
-});

@@ -1360,34 +1360,3 @@ p {
   font-family: var(--mono);
   font-size: 12px;
 }
-
-/* ---------- print ------------------------------------------------------------ */
-
-@media print {
-  .masthead,
-  .footer,
-  .rail::before,
-  .rail-node::before,
-  .ad-slot,
-  .comment,
-  #comments,
-  .byline .btn,
-  .btn {
-    display: none !important;
-  }
-  .article {
-    max-width: 100%;
-  }
-  .prose {
-    font-size: 12pt;
-    line-height: 1.5;
-  }
-  .prose img {
-    max-width: 100%;
-    page-break-inside: avoid;
-  }
-  body {
-    background: #fff;
-    color: #000;
-  }
-}

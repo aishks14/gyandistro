@@ -1,7 +1,6 @@
 import { createApp } from './app';
 import { connectDatabase, disconnectDatabase } from './config/db';
 import { env } from './config/env';
-import { closePdfBrowser } from './services/pdf.service';
 
 async function bootstrap() {
   await connectDatabase();
@@ -15,7 +14,6 @@ async function bootstrap() {
     console.log(`\n[api] ${signal} received, closing down`);
     server.close(async () => {
       await disconnectDatabase();
-      await closePdfBrowser();
       process.exit(0);
     });
     setTimeout(() => process.exit(1), 10000).unref();

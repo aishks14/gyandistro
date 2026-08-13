@@ -35,11 +35,3 @@ export const aiLimiter = rateLimit({
   legacyHeaders: false,
   message: { success: false, message: 'AI assist is limited to 10 calls a minute.' }
 });
-
-export const pdfLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  limit: 5,
-  standardHeaders: 'draft-7',
-  legacyHeaders: false,
-  message: { success: false, message: 'Too many PDF downloads. Try again in a minute.' }
-});
