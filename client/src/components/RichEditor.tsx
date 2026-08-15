@@ -230,12 +230,13 @@ function LinkPanel({ editor, onClose }: { editor: Editor; onClose: () => void })
 
 function ImagePanel({ editor, onClose }: { editor: Editor; onClose: () => void }) {
   const [url, setUrl] = useState('');
+  const [altText, setAltText] = useState(''); 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const fileInput = useRef<HTMLInputElement>(null);
 
   const insertAndClose = useCallback((src: string) => {
-    editor.chain().focus().setImage({ src }).run();
+     editor.chain().focus().setImage({ src, alt: altText.trim() || undefined }).run();
     onClose();
   }, [editor, onClose]);
 
@@ -300,6 +301,14 @@ function ImagePanel({ editor, onClose }: { editor: Editor; onClose: () => void }
       </div>
 
       <span className="field-label">Paste an image URL</span>
+      <span className="field-label" style={{ marginTop: 10 }}>Describe the image (for accessibility & search)</span>
+      <input
+        className="input"
+        placeholder="e.g. Bar chart comparing 2023 vs 2024 revenue"
+        value={altText}
+        onChange={(e) => setAltText(e.target.value)}
+        style={{ marginTop: 6 }}
+      />
       <input
         className="input"
         placeholder="https://…"

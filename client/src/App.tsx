@@ -11,10 +11,12 @@ import TermsOfService from './pages/TermsOfService';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
-import Editor from './pages/Editor';
+import { lazy, Suspense } from 'react';
 import Admin from './pages/Admin';
 import Author from './pages/Author';
 import NotFound from './pages/NotFound';
+
+const Editor = lazy(() => import('./pages/Editor'));
 
 export default function App() {
   return (
@@ -46,7 +48,9 @@ export default function App() {
           path="/write"
           element={
             <ProtectedRoute minimum="author">
-              <Editor />
+              <Suspense fallback={<div className="shell page">Loading editor…</div>}>
+                <Editor />
+              </Suspense>
             </ProtectedRoute>
           }
         />

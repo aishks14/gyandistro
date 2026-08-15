@@ -9,6 +9,7 @@ import routes from './routes';
 import { errorHandler, notFoundHandler } from './middleware/error';
 import { globalLimiter } from './middleware/rateLimit';
 import { uploadsAbsoluteDir } from './controllers/upload.controller';
+import { getSitemap } from './controllers/sitemap.controller';
 
 export function createApp(): Application {
   const app = express();
@@ -72,6 +73,7 @@ export function createApp(): Application {
     res.json({ success: true, message: 'GyanDistro API. See /api/health.' });
   });
 
+  app.get('/sitemap.xml', getSitemap);
   app.use('/api', routes);
 
   app.use(notFoundHandler);

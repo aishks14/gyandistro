@@ -7,6 +7,7 @@ import AdSlot from '../components/AdSlot';
 import Avatar from '../components/Avatar';
 import SocialLinks from '../components/SocialLinks';
 import type { CommentNode, Post } from '../types';
+import { Helmet } from 'react-helmet-async';
 
 export default function Article() {
   const { slug = '' } = useParams();
@@ -39,7 +40,7 @@ export default function Article() {
         setPost(res.data);
         setLikeCount(res.data.likes?.length ?? 0);
         setLiked(Boolean(user && res.data.likes?.includes(user.id)));
-        document.title = `${res.data.title} — GyanDistro`;
+        // document.title = `${res.data.title} — GyanDistro`;
       })
       .catch((err) => {
         if (!cancelled) setError(err instanceof Error ? err.message : 'Could not load the article');
@@ -91,6 +92,27 @@ export default function Article() {
     );
   }
 
+  const SITE_URL = 'https://gyandistro.com';
+  const articleUrl = `${SITE_URL}/article/${post.slug}`;
+  const shareImage = post.coverImageUrl || `${SITE_URL}/og-default.png`;
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: post.excerpt,
+    image: shareImage,
+    datePublished: post.publishedAt,
+    dateModified: post.updatedAt,
+    author: { '@type': 'Person', name: post.author?.name ?? 'GyanDistro' },
+    publisher: {
+      '@type': 'Organization',
+      name: 'GyanDistro',
+      logo: { '@type': 'ImageObject', url: `${SITE_URL}/gyandistro-icon.svg` }
+    },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': articleUrl }
+  };
+
   const canEdit =
     user && (user.id === (post.author as { _id?: string })?._id || roleRank(user.role) >= roleRank('editor'));
 
@@ -101,119 +123,140 @@ export default function Article() {
   const secondHalf = blocks.slice(breakAt).join('</p>');
 
   return (
-    <div className="shell page">
-      <div className="split">
-        <main id="main">
-          <article className="article rail">
-            <header className="article-head">
-              <div className="chip-row rail-node" style={{ marginBottom: 14 }}>
-                {post.category && (
-                  <Link className="chip" to={`/?category=${post.category.slug}`}>
-                    <span className="chip-dot" style={{ background: post.category.colour }} />
-                    {post.category.name}
-                  </Link>
-                )}
-                {post.isSponsored && (
-                  <span className="chip chip-flag">
-                    Sponsored{post.sponsorName ? ` by ${post.sponsorName}` : ''}
-                  </span>
-                )}
-                {post.status !== 'published' && <span className="chip chip-flag">{post.status}</span>}
-              </div>
+    <>
+      <div className="shell page">
+        <div className="split">
+          <main id="main">
+            <article className="article rail">
+              <header className="article-head">
+                <div className="chip-row rail-node" style={{ marginBottom: 14 }}>
+                  {post.category && (
+                    <Link className="chip" to={`/?category=${post.category.slug}`}>
+                      <span className="chip-dot" style={{ background: post.category.colour }} />
+                      {post.category.name}
+                    </Link>
+                  )}
+                  {post.isSponsored && (
+                    <span className="chip chip-flag">
+                      Sponsored{post.sponsorName ? ` by ${post.sponsorName}` : ''}
+                    </span>
+                  )}
+                  {post.status !== 'published' && <span className="chip chip-flag">{post.status}</span>}
+                </div>
 
-              <h1>{post.title}</h1>
-              <p className="lede">{post.excerpt}</p>
+                <h1>{post.title}</h1>
+                <p className="lede">{post.excerpt}</p>
 
-              <div className="byline">
-                <Avatar name={post.author?.name ?? '?'} url={post.author?.avatarUrl} />
-                <div>
-                  <Link
-                    to={`/author/${(post.author as { _id?: string })?._id}`}
-                    style={{ fontFamily: 'var(--display)', fontWeight: 600 }}
-                  >
-                    {post.author?.name}
-                  </Link>
-                  <div className="meta">
-                    {formatDate(post.publishedAt ?? post.createdAt)} · {post.readingMinutes} min read ·{' '}
-                    {post.views} views
+                <div className="byline">
+                  <Avatar name={post.author?.name ?? '?'} url={post.author?.avatarUrl} />
+                  <div>
+                    <Link
+                      to={`/author/${(post.author as { _id?: string })?._id}`}
+                      style={{ fontFamily: 'var(--display)', fontWeight: 600 }}
+                    >
+                      {post.author?.name}
+                    </Link>
+                    <div className="meta">
+                      {formatDate(post.publishedAt ?? post.createdAt)} · {post.readingMinutes} min read ·{' '}
+                      {post.views} views
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {canEdit && (
-                <div className="row" style={{ marginTop: 18 }}>
-                  <Link className="btn btn-ghost btn-sm" to={`/write/${post._id}`}>
-                    Edit article
-                  </Link>
-                  <button className="btn btn-danger btn-sm" onClick={removePost}>
-                    Delete
-                  </button>
+                {canEdit && (
+                  <div className="row" style={{ marginTop: 18 }}>
+                    <Link className="btn btn-ghost btn-sm" to={`/write/${post._id}`}>
+                      Edit article
+                    </Link>
+                    <button className="btn btn-danger btn-sm" onClick={removePost}>
+                      Delete
+                    </button>
+                  </div>
+                )}
+              </header>
+
+              {post.aiSummary && (
+                <div className="notice notice-ok">
+                  <strong>In short:</strong> {post.aiSummary}
                 </div>
               )}
-            </header>
 
-            {post.aiSummary && (
-              <div className="notice notice-ok">
-                <strong>In short:</strong> {post.aiSummary}
+              <div className="prose" dangerouslySetInnerHTML={{ __html: firstHalf }} />
+              <AdSlot placement="in-article" />
+              <div className="prose" dangerouslySetInnerHTML={{ __html: secondHalf }} />
+
+              {post.hasAffiliateLinks && (
+                <p className="disclosure">
+                  Some links in this article are affiliate links. If you buy through one, GyanDistro
+                  earns a commission at no extra cost to you. It does not change what we recommend.
+                </p>
+              )}
+
+              <div className="row" style={{ marginTop: 28 }}>
+                <button className={`btn btn-sm${liked ? '' : ' btn-ghost'}`} onClick={toggleLike}>
+                  {liked ? 'Liked' : 'Like'} · {likeCount}
+                </button>
+                {post.tags?.map((t) => (
+                  <Link key={t._id} className="chip" to={`/?tag=${t.slug}`}>
+                    #{t.name}
+                  </Link>
+                ))}
               </div>
-            )}
 
-            <div className="prose" dangerouslySetInnerHTML={{ __html: firstHalf }} />
-            <AdSlot placement="in-article" />
-            <div className="prose" dangerouslySetInnerHTML={{ __html: secondHalf }} />
+              <AdSlot placement="below-post" />
 
-            {post.hasAffiliateLinks && (
-              <p className="disclosure">
-                Some links in this article are affiliate links. If you buy through one, GyanDistro
-                earns a commission at no extra cost to you. It does not change what we recommend.
-              </p>
-            )}
-
-            <div className="row" style={{ marginTop: 28 }}>
-              <button className={`btn btn-sm${liked ? '' : ' btn-ghost'}`} onClick={toggleLike}>
-                {liked ? 'Liked' : 'Like'} · {likeCount}
-              </button>
-              {post.tags?.map((t) => (
-                <Link key={t._id} className="chip" to={`/?tag=${t.slug}`}>
-                  #{t.name}
-                </Link>
-              ))}
-            </div>
-
-            <AdSlot placement="below-post" />
-
-            {post.author?.bio && (
-              <section className="panel" style={{ marginTop: 34 }}>
-                <div className="row" style={{ alignItems: 'flex-start' }}>
-                  <Avatar name={post.author.name} url={post.author.avatarUrl} />
-                  <div style={{ flex: 1, minWidth: 200 }}>
-                    <h3 style={{ marginBottom: 6 }}>{post.author.name}</h3>
-                    <p style={{ marginBottom: 12 }}>{post.author.bio}</p>
-                    <SocialLinks links={post.author.social} className="chip-row" />
+              {post.author?.bio && (
+                <section className="panel" style={{ marginTop: 34 }}>
+                  <div className="row" style={{ alignItems: 'flex-start' }}>
+                    <Avatar name={post.author.name} url={post.author.avatarUrl} />
+                    <div style={{ flex: 1, minWidth: 200 }}>
+                      <h3 style={{ marginBottom: 6 }}>{post.author.name}</h3>
+                      <p style={{ marginBottom: 12 }}>{post.author.bio}</p>
+                      <SocialLinks links={post.author.social} className="chip-row" />
+                    </div>
                   </div>
-                </div>
-              </section>
-            )}
+                </section>
+              )}
 
-            <CommentThread
-              slug={post.slug}
-              comments={comments}
-              allowComments={post.allowComments}
-              onReload={loadComments}
-            />
-          </article>
-        </main>
+              <CommentThread
+                slug={post.slug}
+                comments={comments}
+                allowComments={post.allowComments}
+                onReload={loadComments}
+              />
+            </article>
+          </main>
 
-        <aside>
-          <div className="sidebar-block">
-            <div className="sidebar-title">In this article</div>
-            <p className="meta">
-              {post.readingMinutes} minute read · published {formatDate(post.publishedAt)}
-            </p>
-          </div>
-          <AdSlot placement="sidebar" />
-        </aside>
+          <aside>
+            <div className="sidebar-block">
+              <div className="sidebar-title">In this article</div>
+              <p className="meta">
+                {post.readingMinutes} minute read · published {formatDate(post.publishedAt)}
+              </p>
+            </div>
+            <AdSlot placement="sidebar" />
+          </aside>
+        </div>
       </div>
-    </div>
+      <Helmet>
+        <title>{post.title} — GyanDistro</title>
+        <meta name="description" content={post.excerpt} />
+        <link rel="canonical" href={articleUrl} />
+
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={post.title} />
+        <meta property="og:description" content={post.excerpt} />
+        <meta property="og:image" content={shareImage} />
+        <meta property="og:url" content={articleUrl} />
+        <meta property="og:site_name" content="GyanDistro" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={post.title} />
+        <meta name="twitter:description" content={post.excerpt} />
+        <meta name="twitter:image" content={shareImage} />
+
+        <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+      </Helmet>
+    </>
   );
 }

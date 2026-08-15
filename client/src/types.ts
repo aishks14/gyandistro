@@ -64,6 +64,7 @@ export interface Post {
   aiSummary?: string;
   publishedAt?: string | null;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface CommentNode {
@@ -200,6 +201,7 @@ export interface MyComment {
   status: string;
   depth: number;
   createdAt: string;
+  updatedAt?: string;
   author: Pick<User, 'name' | 'avatarUrl' | 'role'> & { _id: string };
   post: { _id: string; title: string; slug: string };
 }

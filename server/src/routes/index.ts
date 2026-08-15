@@ -10,12 +10,15 @@ import roleRequestRoutes from './roleRequest.routes';
 import uploadRoutes from './upload.routes';
 import analyticsRoutes from './analytics.routes';
 import { categoryRouter, tagRouter } from './taxonomy.routes';
+import { getSitemap } from '../controllers/sitemap.controller';
 
 const router = Router();
 
 router.get('/health', (_req, res) => {
   res.json({ success: true, service: 'gyandistro-api', time: new Date().toISOString() });
 });
+
+router.get('/sitemap.xml', getSitemap);
 
 router.use('/auth', authRoutes);
 router.use('/posts', postRoutes);
