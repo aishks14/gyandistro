@@ -195,6 +195,33 @@ export default function Editor() {
     }
   };
 
+  const coverInput = useRef<HTMLInputElement>(null);
+  const [coverUploading, setCoverUploading] = useState(false);
+  const [coverUploadError, setCoverUploadError] = useState('');
+
+  const handleCoverFile = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      setCoverUploadError('That file is not an image');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setCoverUploadError('Images must be under 5MB');
+      return;
+    }
+    setCoverUploading(true);
+    setCoverUploadError('');
+    try {
+      const form = new FormData();
+      form.append('image', file);
+      const res = await api.upload<{ url: string }>('/uploads/image', form);
+      setCover(res.data!.url);
+    } catch (err) {
+      setCoverUploadError(err instanceof Error ? err.message : 'Upload failed');
+    } finally {
+      setCoverUploading(false);
+    }
+  };
+
   return (
     <div className="shell page rail">
       <p className="eyebrow rail-node">{id ? 'Edit' : 'Write'}</p>
@@ -292,14 +319,53 @@ export default function Editor() {
           </div>
 
           <label className="field">
-            <span className="field-label">Cover image URL</span>
+            <span className="field-label">Cover image</span>
+            {coverUploadError && (
+              <div className="notice notice-error" style={{ marginBottom: 8 }}>
+                {coverUploadError}
+              </div>
+            )}
+            {coverImageUrl && (
+              <img
+                src={coverImageUrl}
+                alt=""
+                style={{
+                  width: '100%',
+                  maxHeight: 160,
+                  objectFit: 'cover',
+                  border: '1px solid var(--line)',
+                  marginBottom: 10
+                }}
+              />
+            )}
             <input
               className="input"
               type="url"
               value={coverImageUrl}
               onChange={(e) => setCover(e.target.value)}
-              placeholder="https://..."
+              placeholder="https://… or upload below"
             />
+            <input
+              ref={coverInput}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              style={{ display: 'none' }}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) void handleCoverFile(file);
+                e.target.value = '';
+              }}
+            />
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              style={{ marginTop: 8 }}
+              onClick={() => coverInput.current?.click()}
+              disabled={coverUploading}
+            >
+              {coverUploading ? 'Uploading…' : 'Upload from your computer'}
+            </button>
+            <span className="field-hint">Paste a URL, or upload a file — either fills this field.</span>
           </label>
 
           <div className="sidebar-title" style={{ marginTop: 26 }}>

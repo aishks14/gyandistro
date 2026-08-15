@@ -1360,3 +1360,73 @@ p {
   font-family: var(--mono);
   font-size: 12px;
 }
+
+/* ---------- print ------------------------------------------------------------ */
+
+@media print {
+  .masthead,
+  .footer,
+  .rail::before,
+  .rail-node::before,
+  .ad-slot,
+  .comment,
+  #comments,
+  .byline .btn,
+  .btn {
+    display: none !important;
+  }
+  .article {
+    max-width: 100%;
+  }
+  .prose {
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+  .prose img {
+    max-width: 100%;
+    page-break-inside: avoid;
+  }
+  body {
+    background: #fff;
+    color: #000;
+  }
+}
+
+/* ---------- cookie consent ------------------------------------------------ */
+
+.cookie-banner {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  background: var(--ink);
+  border-top: 1px solid var(--marigold);
+  padding: 18px 0;
+}
+
+.cookie-banner-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cookie-banner-text {
+  color: #d9dbe7;
+  font-size: 14px;
+  margin: 0;
+  max-width: 60ch;
+}
+
+.cookie-banner-link {
+  color: var(--marigold);
+  text-decoration: underline;
+}
+
+.cookie-banner-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
